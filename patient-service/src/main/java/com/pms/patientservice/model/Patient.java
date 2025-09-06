@@ -35,9 +35,10 @@ public class Patient {
     private LocalDate dateOfBirth;
 
     @NotNull
-    private LocalDate registedDate;
+    private LocalDate registeredDate;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
 }
