@@ -81,6 +81,8 @@ Thumbs.db
 
 # LocalStack
 .localstack/
+infrastructure/
 
 # AWS credentials
 .aws/
+/infrastructure/
