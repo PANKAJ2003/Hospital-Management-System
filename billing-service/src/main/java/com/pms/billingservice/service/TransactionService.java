@@ -4,6 +4,7 @@ import com.pms.billingservice.dto.TransactionRequestDTO;
 import com.pms.billingservice.dto.TransactionResponseDTO;
 import com.pms.billingservice.dto.VerifyPaymentRequestDTO;
 import com.pms.billingservice.enums.PaymentGateway;
+import com.pms.billingservice.enums.PaymentMethod;
 import com.pms.billingservice.enums.PaymentStatus;
 import com.pms.billingservice.exception.BillingAccountDoesNotExistException;
 import com.pms.billingservice.exception.PaymentProcessingException;
@@ -77,6 +78,9 @@ public class TransactionService {
 
             TransactionResponseDTO orderDTO = paymentProcessor.processPayment(transaction);
             transaction.setGatewayOrderId((String) orderDTO.getGatewayOrderDetails().get("order_id"));
+            if(transaction.getPaymentMethod() ==  PaymentMethod.CASH) {
+                transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+            }
             transactionRepository.save(transaction);
 
             return orderDTO;
