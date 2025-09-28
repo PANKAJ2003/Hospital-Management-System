@@ -1,5 +1,6 @@
 package com.pms.billingservice.dto;
 
+import com.pms.billingservice.enums.PaymentGateway;
 import com.pms.billingservice.enums.PaymentMethod;
 import com.pms.billingservice.enums.PaymentType;
 import jakarta.validation.constraints.NotNull;
@@ -28,4 +29,6 @@ public class TransactionRequestDTO {
 
     @NotNull(message = "Payment type is required")
     private PaymentType paymentType;
+
+    private PaymentGateway paymentGateway;
 }

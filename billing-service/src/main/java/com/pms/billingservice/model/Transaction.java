@@ -1,5 +1,6 @@
 package com.pms.billingservice.model;
 
+import com.pms.billingservice.enums.PaymentGateway;
 import com.pms.billingservice.enums.PaymentMethod;
 import com.pms.billingservice.enums.PaymentStatus;
 import com.pms.billingservice.enums.PaymentType;
@@ -37,6 +38,12 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentType paymentType;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentGateway paymentGateway;
+
+    @Column(length = 255)
+    private String gatewayOrderId;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;

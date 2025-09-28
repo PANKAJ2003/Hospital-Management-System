@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Test Frontend ###
+/src/main/resources/static/index.html

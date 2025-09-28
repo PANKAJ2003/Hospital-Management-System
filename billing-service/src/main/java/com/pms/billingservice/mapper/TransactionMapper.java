@@ -16,6 +16,8 @@ public class TransactionMapper {
         transactionResponseDTO.setAmount(transaction.getAmount());
         transactionResponseDTO.setStatus(transaction.getPaymentStatus());
         transactionResponseDTO.setBillingAccount(transaction.getBillingAccount().getId());
+        transactionResponseDTO.setPaymentMethod(transaction.getPaymentMethod());
+        transactionResponseDTO.setPaymentGateway(transaction.getPaymentGateway());
 
         return transactionResponseDTO;
     }
@@ -28,6 +30,7 @@ public class TransactionMapper {
         transaction.setPaymentMethod(transactionRequestDTO.getPaymentMethod());
         transaction.setBillingAccount(billingAccount);
         transaction.setPaymentType(transactionRequestDTO.getPaymentType());
+        transaction.setPaymentGateway(transactionRequestDTO.getPaymentGateway());
 
         return transaction;
     }
