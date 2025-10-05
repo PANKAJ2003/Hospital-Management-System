@@ -13,11 +13,11 @@ import java.util.UUID;
 @Setter
 @Getter
 public class TransactionResponseDTO {
+    Map<String, Object> gatewayOrderDetails;
     private UUID transactionId;
     private BigDecimal amount;
     private UUID billingAccount;
     private PaymentStatus status;
-    Map<String, Object> gatewayOrderDetails;
     private PaymentMethod paymentMethod;
     private PaymentGateway paymentGateway;
 }

@@ -78,7 +78,7 @@ public class TransactionService {
 
             TransactionResponseDTO orderDTO = paymentProcessor.processPayment(transaction);
             transaction.setGatewayOrderId((String) orderDTO.getGatewayOrderDetails().get("order_id"));
-            if(transaction.getPaymentMethod() ==  PaymentMethod.CASH) {
+            if (transaction.getPaymentMethod() == PaymentMethod.CASH) {
                 transaction.setPaymentStatus(PaymentStatus.SUCCESS);
             }
             transactionRepository.save(transaction);
