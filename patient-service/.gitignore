@@ -35,5 +35,5 @@ build/
 ### environment secrets ###
 application-dev.yaml
 
-### Others ###
-data.sql
+#### Others ###
+#data.sql

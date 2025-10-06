@@ -4,7 +4,15 @@ option java_multiple_files = true;
 option java_package = "billing";
 
 service BillingService {
+  // Create a new billing account for a patient
   rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+
+  // Find Billing Account by PatientId
+  rpc FindBillingAccountIdByPatientId (FindBillingAccountIdRequest) returns (FindBillingAccountIdResponse);
+
+  // Add amount to an existing billing account
+  rpc UpdateBillingAccountAmount (UpdateAmountRequest) returns (UpdateAmountResponse);
+
 }
 
 message BillingRequest {
@@ -16,4 +24,31 @@ message BillingRequest {
 message BillingResponse {
   string accountId = 1;
   string status = 2;
+}
+
+message UpdateAmountRequest {
+  string accountId = 1;
+  int64 amount = 2; // in smallest currency unit
+  int64 currencyScale = 3; // to convert smallest unit to major unit(eg: 100 for 1 INR)
+  TransactionType type = 4;
+}
+
+message UpdateAmountResponse {
+  string accountId = 1;
+  int64 newBalance = 2; // in smallest currency unit
+  string status = 3;
+}
+
+message FindBillingAccountIdRequest {
+  string patientId = 1;
+}
+
+message FindBillingAccountIdResponse {
+  string billingAccountId = 1;
+}
+
+enum TransactionType {
+  CHARGE = 0;
+  REFUND = 1;
+  ADJUSTMENT = 2;
 }
