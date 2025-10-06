@@ -34,4 +34,20 @@ public class GlobalExceptionHandler {
         errors.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
+
+    @ExceptionHandler(FailedToCreateAppointmentException.class)
+    public ResponseEntity<Map<String, String>> handleFailedToCreateAppointmentException(FailedToCreateAppointmentException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Failed to create appointment");
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Internal Server Error");
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
 }
