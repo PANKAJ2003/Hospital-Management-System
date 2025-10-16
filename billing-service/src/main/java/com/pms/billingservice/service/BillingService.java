@@ -1,11 +1,22 @@
 package com.pms.billingservice.service;
 
+import com.pms.billingservice.dto.BillingAccountDetailResponse;
+import com.pms.billingservice.dto.TransactionDetailDTO;
+import com.pms.billingservice.dto.TransactionListResponseDTO;
+import com.pms.billingservice.mapper.TransactionMapper;
 import com.pms.billingservice.model.BillingAccount;
+import com.pms.billingservice.model.Transaction;
 import com.pms.billingservice.repository.BillingAccountRepository;
+import com.pms.billingservice.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,9 +24,11 @@ import java.util.UUID;
 public class BillingService {
 
     private final BillingAccountRepository billingAccountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public BillingService(BillingAccountRepository billingAccountRepository) {
+    public BillingService(BillingAccountRepository billingAccountRepository, TransactionRepository transactionRepository) {
         this.billingAccountRepository = billingAccountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -56,4 +69,21 @@ public class BillingService {
             return Optional.empty();
         }
     }
+
+    @Transactional
+    public BillingAccountDetailResponse getBillingAccountByPatientId(UUID patientId) {
+        if (patientId == null) {
+            throw new IllegalArgumentException("Patient ID cannot be null");
+        }
+        BillingAccount billingAccount = billingAccountRepository.findByPatientId(patientId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Billing account not found for patientId: " + patientId));
+
+        BillingAccountDetailResponse response = new BillingAccountDetailResponse();
+        response.setBalance(billingAccount.getBalance());
+        response.setStatus(billingAccount.getAccountStatus());
+        response.setPatientId(billingAccount.getPatientId().toString());
+        return response;
+    }
+
 }

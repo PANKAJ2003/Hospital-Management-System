@@ -22,6 +22,7 @@ message UpdateAppointmentStatusRequest {
   string appointmentId = 1;
   bool paymentSuccess = 2;
   string transactionId = 3;
+  string paymentMethod = 4;
 }
 
 // Response after updating appointment

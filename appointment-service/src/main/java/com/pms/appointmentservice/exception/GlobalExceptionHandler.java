@@ -43,6 +43,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 
+    @ExceptionHandler(FailedToCreateTimeSlotException.class)
+    public ResponseEntity<Map<String, String>> handleFailedToCreateTimeSlotException(FailedToCreateTimeSlotException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Failed to create time slot");
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
         Map<String, String> errors = new HashMap<>();

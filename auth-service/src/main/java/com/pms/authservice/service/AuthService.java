@@ -2,11 +2,11 @@ package com.pms.authservice.service;
 
 import com.pms.authservice.dto.LoginRequestDTO;
 import com.pms.authservice.util.JwtUtil;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,12 +23,25 @@ public class AuthService {
     }
 
     public Optional<String> authenticate(LoginRequestDTO loginRequestDTO) {
-        Optional<String> token = userService
+        return userService
                 .findByEmail(loginRequestDTO.getEmail())
                 .filter(u -> passwordEncoder.matches(loginRequestDTO.getPassword(), u.getPassword()))
-                .map(u -> jwtUtil.generateToken(u.getEmail(), u.getRole()));
-
-        return token;
+                .flatMap(u -> {
+                    String patientId = null;
+                    if ("PATIENT".equalsIgnoreCase(u.getRole().name())) {
+                        patientId = userService.getPatientIdByUserId(u.getId().toString(), u.getRole().name());
+                        if (patientId == null) {
+                            return Optional.empty(); // patient not found → authentication fails
+                        }
+                    }
+                    String token = jwtUtil.generateToken(
+                            u.getEmail(),
+                            u.getRole().name(),
+                            u.getId().toString(),
+                            patientId
+                    );
+                    return Optional.of(token);
+                });
     }
 
     public boolean validateToken(String token) {
@@ -38,5 +51,9 @@ public class AuthService {
         } catch (JwtException e) {
             return false;
         }
+    }
+
+    public Map<String, Object> extractAllClaims(String token) {
+        return jwtUtil.extractAllClaims(token);
     }
 }

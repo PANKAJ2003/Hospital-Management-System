@@ -1,4 +1,4 @@
-package com.pms.billingservice.enums;
+package com.pms.appointmentservice.enums;
 
 public enum PaymentStatus {
     SUCCESS, FAILED, PENDING

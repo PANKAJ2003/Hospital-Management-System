@@ -43,6 +43,12 @@ message PatientByUserIdRequest{
   string userId = 1;
 }
 
+message PatientIdResponse{
+  string patientId = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // =====================
 // Enums
 // =====================
@@ -72,4 +78,5 @@ enum BloodGroup {
 service PatientServiceForAuth {
   rpc CreatePatient(CreatePatientRequest) returns (AuthPatientResponse);
   rpc GetPatientByUserId(PatientByUserIdRequest) returns (AuthPatientResponse);
+  rpc GetPatientIdByUserId(PatientByUserIdRequest) returns (PatientIdResponse);
 }

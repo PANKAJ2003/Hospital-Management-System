@@ -1,4 +1,4 @@
-package com.pms.patientservice.enums;
+package com.pms.authservice.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

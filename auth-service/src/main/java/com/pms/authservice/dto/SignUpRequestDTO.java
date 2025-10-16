@@ -1,14 +1,17 @@
 package com.pms.authservice.dto;
 
+import com.pms.authservice.enums.BloodGroup;
 import com.pms.authservice.enums.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Setter
 @Getter
 public class SignUpRequestDTO {
     @NotBlank(message = "Name is required")
@@ -32,6 +35,19 @@ public class SignUpRequestDTO {
     @NotNull(message = "Gender is required")
     private Gender gender;
 
-    @NotNull(message = "Registered date is required")
+    @NotNull(message = "Phone number is required")
+    @Size(max = 10, message = "Phone number cannot exceed 10 characters")
+    private String phoneNumber;
+
+    @NotNull(message = "Blood group is required")
+    private BloodGroup bloodGroup;
+
+    @NotNull(message = "Emergency contact number is required")
+    @Size(max = 10, message = "Emergency contact number cannot exceed 10 characters")
+    private String emergencyContactNumber;
+
+    @NotNull(message = "Emergency contact name is required")
+    private String emergencyContactName;
+
     private LocalDate registeredDate;
 }

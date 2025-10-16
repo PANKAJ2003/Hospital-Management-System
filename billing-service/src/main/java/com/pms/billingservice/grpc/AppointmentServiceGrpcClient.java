@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class AppointmentServiceClient {
+public class AppointmentServiceGrpcClient {
     private final AppointmentServiceGrpc.AppointmentServiceBlockingStub appointmentServiceBlockingStub;
 
-    public AppointmentServiceClient(
+    public AppointmentServiceGrpcClient(
             @Value("${appointment.service.address}") String serverAddress,
             @Value("${appointment.service.grpc.port}") int serverPort
     ) {
@@ -25,9 +25,14 @@ public class AppointmentServiceClient {
     }
 
     public AppointmentResponse getAppointment(String id) {
-        AppointmentRequest request = AppointmentRequest.newBuilder()
-                .setAppointmentId(id).build();
-        return appointmentServiceBlockingStub.getAppointment(request);
+        try {
+            AppointmentRequest request = AppointmentRequest.newBuilder()
+                    .setAppointmentId(id).build();
+            return appointmentServiceBlockingStub.getAppointment(request);
+        } catch (Exception e) {
+            log.error("Error while fetching appointment: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     public UpdateAppointmentStatusResponse updateAppointmentStatus(String appointmentId,

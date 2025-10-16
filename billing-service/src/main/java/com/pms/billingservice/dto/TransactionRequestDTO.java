@@ -14,11 +14,11 @@ import java.util.UUID;
 @Setter
 public class TransactionRequestDTO {
 
-    @NotNull(message = "Billing ID is required")
-    private UUID billingAccountId;
+    @NotNull(message = "Patient ID is required")
+    private UUID patientId;
 
-    @NotNull(message = "Amount is required")
-    private Double amount;
+    @NotNull(message = "Appointment ID is required")
+    private UUID appointmentId;
 
     @NotNull(message = "Description is required")
     @Size(max = 256, message = "Description cannot exceed 255 characters")
@@ -30,5 +30,6 @@ public class TransactionRequestDTO {
     @NotNull(message = "Payment type is required")
     private PaymentType paymentType;
 
+    @NotNull(message = "Payment gateway is required")
     private PaymentGateway paymentGateway;
 }

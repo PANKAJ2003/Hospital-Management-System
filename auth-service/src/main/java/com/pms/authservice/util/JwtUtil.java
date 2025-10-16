@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -23,10 +25,17 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, String userId, String patientId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userId);
+
+        if ("PATIENT".equalsIgnoreCase(role) && patientId != null) {
+            claims.put("patientId", patientId);
+        }
         return Jwts.builder()
                    .subject(email)
-                   .claim("role", role)
+                    .claims(claims)
                    .issuedAt(new Date())
                    .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
                    .signWith(secretKey)
@@ -43,7 +52,14 @@ public class JwtUtil {
         } catch (JwtException e) {
             throw new JwtException("Invalid JWT Token");
         }
-
-
     }
+
+    public Map<String, Object> extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
 }

@@ -29,9 +29,39 @@ spring:
                 - StripPrefix=1
                 - JwtValidation
 
+            - id: billing-service-route
+              uri: http://billing-service:4001
+              predicates:
+                - Path=/api/billing/**
+              filters:
+                - StripPrefix=1
+                - JwtValidation
+
+            - id: appointment-service-route
+              uri: http://appointment-service:4003
+              predicates:
+                - Path=/api/appointments/**,/api/timeslots/**,/api/appointment-slots/**
+              filters:
+                - StripPrefix=1
+                - JwtValidation
+
+            - id: doctor-service-route
+              uri: http://doctor-service:4002
+              predicates:
+                - Path=/api/doctors/**
+              filters:
+                - StripPrefix=1
+                - JwtValidation
+
             - id: api-docs-patient-route
               uri: http://patient-service:4000
               predicates:
                 - Path=/api-docs/patients
               filters:
                 - RewritePath=/api-docs/patients, /v3/api-docs
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "*"
+                allowedMethods: "*"
+                allowedHeaders: "*"
