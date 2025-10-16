@@ -1,11 +1,14 @@
 package com.pms.billingservice.mapper;
 
+import com.pms.billingservice.dto.TransactionDetailDTO;
 import com.pms.billingservice.dto.TransactionRequestDTO;
 import com.pms.billingservice.dto.TransactionResponseDTO;
 import com.pms.billingservice.model.BillingAccount;
 import com.pms.billingservice.model.Transaction;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class TransactionMapper {
 
@@ -25,13 +28,31 @@ public class TransactionMapper {
     public static Transaction toModel(TransactionRequestDTO transactionRequestDTO, BillingAccount billingAccount) {
         Transaction transaction = new Transaction();
 
-        transaction.setAmount(BigDecimal.valueOf(transactionRequestDTO.getAmount()));
+//        transaction.setAmount(BigDecimal.valueOf(transactionRequestDTO.getAmount()));
         transaction.setDescription(transactionRequestDTO.getDescription());
         transaction.setPaymentMethod(transactionRequestDTO.getPaymentMethod());
         transaction.setBillingAccount(billingAccount);
         transaction.setPaymentType(transactionRequestDTO.getPaymentType());
         transaction.setPaymentGateway(transactionRequestDTO.getPaymentGateway());
+        transaction.setAppointmentId(transactionRequestDTO.getAppointmentId());
 
         return transaction;
+    }
+
+    public static TransactionDetailDTO toTransactionDetailDto(Transaction transaction) {
+        TransactionDetailDTO dto = new TransactionDetailDTO();
+        dto.setId(String.valueOf(transaction.getId()));
+        dto.setAmount(transaction.getAmount());
+        dto.setDescription(transaction.getDescription());
+        dto.setPaymentType(transaction.getPaymentType());
+        dto.setStatus(transaction.getPaymentStatus());
+
+        if (transaction.getTimestamp() != null) {
+            String formattedTimestamp = transaction.getTimestamp()
+                    .atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            dto.setTimestamp(formattedTimestamp);
+        }
+        return dto;
     }
 }

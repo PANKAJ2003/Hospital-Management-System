@@ -15,11 +15,15 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Table(name = "transactions")
 public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    @Column(nullable = false)
+    private UUID appointmentId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "billing_account_id", nullable = false)
@@ -42,8 +46,11 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private PaymentGateway paymentGateway;
 
-    @Column(length = 255)
+    @Column(length = 255, unique = true)
     private String gatewayOrderId;
+
+    @Column(length = 255)
+    private String gatewayPaymentId;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
@@ -56,3 +63,4 @@ public class Transaction {
         this.timestamp = LocalDateTime.now();
     }
 }
+

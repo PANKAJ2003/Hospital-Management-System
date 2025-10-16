@@ -3,8 +3,10 @@ package com.pms.billingservice.service.payment;
 import com.pms.billingservice.dto.TransactionResponseDTO;
 import com.pms.billingservice.dto.VerifyPaymentRequestDTO;
 import com.pms.billingservice.enums.PaymentMethod;
+import com.pms.billingservice.enums.PaymentStatus;
 import com.pms.billingservice.exception.PaymentProcessingException;
 import com.pms.billingservice.model.Transaction;
+import com.pms.billingservice.repository.TransactionRepository;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class RazorpayPaymentProcessor implements PaymentProcessor {
@@ -34,15 +37,20 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
     @Value("${razorpay.webhook.secret}")
     private String webhookSecret;
 
+    private final TransactionRepository transactionRepository;
     private RazorpayClient razorpayClient;
+
+    public RazorpayPaymentProcessor(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
+    }
 
     @PostConstruct
     public void init() {
         try {
             razorpayClient = new RazorpayClient(keyId, keySecret);
-            log.info("Razorpay client initialized successfully");
+            log.info("✅ Razorpay client initialized successfully");
         } catch (RazorpayException e) {
-            log.error("Failed to initialize Razorpay client", e);
+            log.error("❌ Failed to initialize Razorpay client", e);
             throw new PaymentProcessingException("Razorpay initialization failed", e);
         }
     }
@@ -58,7 +66,9 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
     public TransactionResponseDTO processPayment(Transaction transaction) {
         try {
             JSONObject orderRequest = new JSONObject();
-            int amountInPaisa = transaction.getAmount().multiply(BigDecimal.valueOf(100)).intValue();
+            int amountInPaisa = transaction.getAmount()
+                    .multiply(BigDecimal.valueOf(100))
+                    .intValue();
             orderRequest.put("amount", amountInPaisa);
             orderRequest.put("currency", "INR");
 
@@ -69,7 +79,11 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
             }
 
             Order order = razorpayClient.orders.create(orderRequest);
-            log.info("Razorpay order created: {}", (Object) order.get("id"));
+            log.info("Created Razorpay order for transaction: {}", transaction.getId());
+
+            // map orderId to transaction
+            transaction.setGatewayOrderId(order.get("id"));
+            transactionRepository.save(transaction);
 
             TransactionResponseDTO response = new TransactionResponseDTO();
             response.setTransactionId(transaction.getId());
@@ -88,12 +102,14 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
             try {
                 JSONObject orderNotes = order.get("notes");
                 Map<String, Object> notesMap = new HashMap<>();
-                for (String key : orderNotes.keySet()) {
-                    notesMap.put(key, orderNotes.get(key));
+                if (orderNotes != null) {
+                    for (String key : orderNotes.keySet()) {
+                        notesMap.put(key, orderNotes.get(key));
+                    }
                 }
                 orderDetails.put("notes", notesMap);
             } catch (Exception e) {
-                log.debug("No notes in order");
+                log.debug("No notes present in Razorpay order");
             }
 
             response.setGatewayOrderDetails(orderDetails);
@@ -111,7 +127,8 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
             String data = request.getOrderId() + "|" + request.getPaymentId();
             boolean isValid = Utils.verifySignature(data, request.getSignature(), keySecret);
 
-            log.info("Payment verification for order {}: {}", request.getOrderId(), isValid ? "VALID" : "INVALID");
+            log.info("Payment verification for order {}: {}", request.getOrderId(),
+                    isValid ? "VALID" : "INVALID");
 
             if (!isValid) {
                 throw new PaymentProcessingException("Invalid payment signature for orderId: " + request.getOrderId());
@@ -132,28 +149,62 @@ public class RazorpayPaymentProcessor implements PaymentProcessor {
     @Override
     public String handleWebhook(String payload, Map<String, String> headers) {
         try {
-            String signature = headers.get("x-razorpay-signature");
+            // handle case-insensitive signature header
+            String signature = headers.getOrDefault("x-razorpay-signature",
+                    headers.get("X-Razorpay-Signature"));
+            if (signature == null) {
+                log.warn("Missing Razorpay webhook signature");
+                return null;
+            }
+
             if (!Utils.verifyWebhookSignature(payload, signature, webhookSecret)) {
                 log.warn("Invalid Razorpay webhook signature");
                 return null;
             }
 
             JSONObject webhookData = new JSONObject(payload);
-            String event = webhookData.getString("event");
-            JSONObject paymentEntity = webhookData.getJSONObject("payload")
+            String event = webhookData.optString("event");
+            JSONObject paymentEntity = webhookData
+                    .getJSONObject("payload")
                     .getJSONObject("payment")
                     .getJSONObject("entity");
-            String orderId = paymentEntity.getString("order_id");
 
-            log.info("Processing webhook event: {} for orderId: {}", event, orderId);
+            String orderId = paymentEntity.optString("order_id");
+            String paymentId = paymentEntity.optString("id");
+
+            // 🔐 IDEMPOTENCY CHECK
+            Optional<Transaction> existingOpt = transactionRepository.findByGatewayOrderId(orderId);
+            if (existingOpt.isEmpty()) {
+                log.warn("Webhook received for unknown orderId: {}", orderId);
+                return null;
+            }
+
+            Transaction txn = existingOpt.get();
+
+            if (txn.getPaymentStatus() == PaymentStatus.SUCCESS ||
+                    txn.getPaymentStatus() == PaymentStatus.FAILED) {
+                log.info("Duplicate webhook ignored for orderId: {} (already {})",
+                        orderId, txn.getPaymentStatus());
+                return null;
+            }
+
+            log.info("Processing Razorpay webhook event: {} for orderId: {}", event, orderId);
 
             if ("payment.captured".equals(event) || "order.paid".equals(event)) {
+                txn.setPaymentStatus(PaymentStatus.SUCCESS);
+                txn.setGatewayPaymentId(paymentId);
+                transactionRepository.save(txn);
                 return orderId + ":SUCCESS";
+
             } else if ("payment.failed".equals(event)) {
+                txn.setPaymentStatus(PaymentStatus.FAILED);
+                transactionRepository.save(txn);
                 return orderId + ":FAILED";
             }
 
+            log.debug("Unhandled Razorpay event type: {}", event);
             return null;
+
         } catch (Exception e) {
             log.error("Error processing Razorpay webhook", e);
             return null;
