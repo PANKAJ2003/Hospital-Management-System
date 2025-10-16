@@ -9,6 +9,7 @@ import com.pms.patientservice.kafka.KafkaProducer;
 import com.pms.patientservice.mapper.PatientMapper;
 import com.pms.patientservice.model.Patient;
 import com.pms.patientservice.repository.PatientRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -84,4 +85,14 @@ public class PatientService {
         return patientRepository.existsById(patientId);
     }
 
+    public PatientResponseDTO getPatientByUserId(UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("Patient ID cannot be null");
+        }
+        Patient patient = patientRepository.findByUserId(userId);
+        if (patient == null) {
+            throw new PatientNotFoundException("Patient not found for userId: " + userId);
+        }
+        return PatientMapper.toDTO(patient);
+    }
 }

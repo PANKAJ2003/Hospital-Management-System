@@ -13,6 +13,11 @@ public class PatientMapper {
         patientDTO.setAddress(patient.getAddress());
         patientDTO.setDateOfBirth(patient.getDateOfBirth().toString());
         patientDTO.setGender(patient.getGender().toString());
+        patientDTO.setUserId(patient.getUserId().toString());
+        patientDTO.setBloodGroup(patient.getBloodGroup().toString());
+        patientDTO.setEmergencyContactNumber(patient.getEmergencyContactNumber());
+        patientDTO.setEmergencyContactName(patient.getEmergencyContactName());
+        patientDTO.setPhoneNumber(patient.getPhoneNumber());
         return patientDTO;
     }
 
@@ -24,6 +29,12 @@ public class PatientMapper {
         patient.setDateOfBirth(patientRequestDTO.getDateOfBirth());
         patient.setRegisteredDate(patientRequestDTO.getRegisteredDate());
         patient.setEmail(patientRequestDTO.getEmail());
+        patient.setUserId(patientRequestDTO.getUserId());
+        patient.setBloodGroup(patientRequestDTO.getBloodGroup());
+        patient.setEmergencyContactNumber(patientRequestDTO.getEmergencyContactNumber());
+        patient.setEmergencyContactName(patientRequestDTO.getEmergencyContactName());
+        patient.setPhoneNumber(patientRequestDTO.getPhoneNumber());
         return patient;
     }
+
 }
