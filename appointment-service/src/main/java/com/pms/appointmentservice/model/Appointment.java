@@ -2,6 +2,7 @@ package com.pms.appointmentservice.model;
 
 import com.pms.appointmentservice.enums.AppointmentStatus;
 import com.pms.appointmentservice.enums.AppointmentType;
+import com.pms.appointmentservice.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class Appointment {
     private LocalDateTime appointmentDateTime;
 
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+    private AppointmentStatus status;
 
     @Enumerated(EnumType.STRING)
     private AppointmentType type;
@@ -42,6 +43,11 @@ public class Appointment {
 
     @Column(nullable = false)
     private BigDecimal amount;
+
+    private UUID transactionId;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @PrePersist
     protected void onCreate() {

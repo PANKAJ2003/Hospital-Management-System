@@ -2,6 +2,7 @@ package com.pms.appointmentservice.dto;
 
 import com.pms.appointmentservice.enums.AppointmentStatus;
 import com.pms.appointmentservice.enums.AppointmentType;
+import com.pms.appointmentservice.enums.PaymentStatus;
 import com.pms.appointmentservice.model.Appointment;
 import lombok.Value;
 
@@ -18,10 +19,15 @@ public class AppointmentResponseDTO implements Serializable {
     UUID appointmentId;
     UUID patientId;
     UUID doctorId;
+    String doctorName;
+    String doctorSpecialty;
+    String doctorAvatar;
     LocalDateTime appointmentDateTime;
     AppointmentStatus status;
     AppointmentType type;
     String reasonForVisit;
     LocalDateTime createdAt;
     BigDecimal amount;
+    PaymentStatus paymentStatus;
+    UUID transactionId;
 }

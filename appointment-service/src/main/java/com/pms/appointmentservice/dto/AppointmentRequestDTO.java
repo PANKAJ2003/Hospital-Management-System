@@ -34,6 +34,4 @@ public class AppointmentRequestDTO {
     private String reasonForVisit;
     private AppointmentType visitType;
 
-    @NotNull(message = "Amount is required")
-    private BigDecimal amount;
 }

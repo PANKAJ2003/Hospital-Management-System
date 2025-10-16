@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "appointment";
+option java_outer_classname = "AppointmentProto";
+
+// Request to fetch appointment
+message AppointmentRequest {
+  string appointmentId = 1;
+}
+
+// Response with appointment details
+message AppointmentResponse {
+  string appointmentId = 1;
+  string status = 2;
+  string paymentStatus = 3;
+  int64 amount = 4;
+}
+
+// Request to update appointment payment status
+message UpdateAppointmentStatusRequest {
+  string appointmentId = 1;
+  bool paymentSuccess = 2;
+  string transactionId = 3;
+  string paymentMethod = 4;
+}
+
+// Response after updating appointment
+message UpdateAppointmentStatusResponse {
+  string appointmentId = 1;
+  string status = 2;
+  string paymentStatus = 3;
+  string message = 4;
+}
+
+// Service definition
+service AppointmentService {
+  rpc GetAppointment(AppointmentRequest) returns (AppointmentResponse);
+  rpc UpdateAppointmentStatus(UpdateAppointmentStatusRequest) returns (UpdateAppointmentStatusResponse);
+}

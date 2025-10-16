@@ -33,5 +33,5 @@ public class TimeSlot {
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    private TimeSlotStatus status;
+    private TimeSlotStatus status = TimeSlotStatus.AVAILABLE;
 }
