@@ -31,6 +31,13 @@ public class PatientController {
         return ResponseEntity.ok().body(patients);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get patient by ID")
+    public ResponseEntity<PatientResponseDTO> getPatient(@PathVariable UUID id) {
+        PatientResponseDTO patientResponseDTO = patientService.getPatient(id);
+        return ResponseEntity.ok().body(patientResponseDTO);
+    }
+
     @PostMapping
     @Operation(summary = "Create a new patient")
     public ResponseEntity<PatientResponseDTO> createPatient(
@@ -38,7 +45,7 @@ public class PatientController {
 
         PatientResponseDTO patientResponseDTO = patientService.createPatient(patientRequestDTO);
 
-        return ResponseEntity.ok().body(patientResponseDTO);
+        return ResponseEntity.ok(patientResponseDTO);
     }
 
     @PutMapping("/{id}")
@@ -56,5 +63,11 @@ public class PatientController {
         patientService.deletePatient(id);
         return ResponseEntity.noContent().build();
 
+    }
+
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Returns patient details by user id")
+    public ResponseEntity<PatientResponseDTO> getPatientByUserId(@PathVariable UUID userId) {
+        return ResponseEntity.ok().body(patientService.getPatientByUserId(userId));
     }
 }

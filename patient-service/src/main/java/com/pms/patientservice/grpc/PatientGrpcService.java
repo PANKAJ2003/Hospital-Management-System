@@ -14,7 +14,7 @@ import patient.PatientServiceGrpc;
 import java.util.UUID;
 
 @GrpcService
-public class PatientGrpcService extends PatientServiceGrpc.PatientServiceImplBase {
+public class PatientGrpcService extends PatientServiceGrpc.PatientServiceImplBase{
     private final static Logger log = LoggerFactory.getLogger(PatientGrpcService.class);
     private final PatientService patientService;
 

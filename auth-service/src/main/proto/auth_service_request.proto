@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "patient";
+option java_outer_classname = "PatientServiceRequestProto";
+
+// =====================
+// Messages
+// =====================
+
+// Request to create a patient
+message CreatePatientRequest {
+  string userId = 1;
+  string name = 2;
+  string email = 3;
+  string address = 4;
+  string dateOfBirth = 5;         // Use ISO-8601 format YYYY-MM-DD
+  Gender gender = 6;
+  string phoneNumber = 7;
+  BloodGroup bloodGroup = 8;
+  string emergencyContactName = 9;
+  string emergencyContactNumber = 10;
+}
+
+// Response  patient
+message AuthPatientResponse {
+  string patientId = 1;
+  bool success = 2;
+  string message = 3;
+  string userId = 4;
+  string name = 5;
+  string email = 6;
+  string address = 7;
+  string dateOfBirth = 8;
+  Gender gender = 9;
+  string phoneNumber = 10;
+  BloodGroup bloodGroup = 11;
+  string emergencyContactName = 12;
+  string emergencyContactNumber = 13;
+}
+
+message PatientByUserIdRequest{
+  string userId = 1;
+}
+
+// =====================
+// Enums
+// =====================
+
+enum Gender {
+  MALE = 0;
+  FEMALE = 1;
+  OTHER = 2;
+}
+
+enum BloodGroup {
+  UNKNOWN_BLOOD_GROUP = 0;
+  A_POSITIVE = 1;
+  A_NEGATIVE = 2;
+  B_POSITIVE = 3;
+  B_NEGATIVE = 4;
+  AB_POSITIVE = 5;
+  AB_NEGATIVE = 6;
+  O_POSITIVE = 7;
+  O_NEGATIVE = 8;
+}
+
+// =====================
+// Service
+// =====================
+
+service PatientServiceForAuth {
+  rpc CreatePatient(CreatePatientRequest) returns (AuthPatientResponse);
+  rpc GetPatientByUserId(PatientByUserIdRequest) returns (AuthPatientResponse);
+}

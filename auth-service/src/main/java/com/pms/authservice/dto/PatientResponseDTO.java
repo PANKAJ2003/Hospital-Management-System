@@ -1,4 +1,4 @@
-package com.pms.patientservice.dto;
+package com.pms.authservice.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +12,4 @@ public class PatientResponseDTO {
     private String address;
     private String dateOfBirth;
     private String gender;
-    private String userId;
-    private String phoneNumber;
-    private String bloodGroup;
-    private String emergencyContactName;
-    private String emergencyContactNumber;
 }
